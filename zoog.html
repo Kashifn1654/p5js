@@ -19,7 +19,7 @@
             rect(250,350,300,200);
             rect(350,550,100,80)   //neck
             rect(240,630,340,200); //body
-            stroke("green")
+            stroke(0,220,0)
             textSize(28)
             text("I am a robot",400,700);
             
@@ -33,28 +33,34 @@
             strokeWeight(0);
             quad(250,350,300,325,500,325,550,350);
             strokeWeight(12);
-            line(250,345,300,325);
+            line(250,345,300,325);//makes back of head
             line(550,345,500,325);
             line(300,325,500,325);
             
             //eyes
-            fill('yellow')
+            fill(0,220,0)
             strokeWeight(10);
             stroke('black')
-            point(400,440) // nose
+            
             stroke(0)
             strokeWeight()
-            ellipse(305,415,40,110);
+            ellipse(305,415,40,110); // left
             ellipse(500,415,40,110); //right
             
             
+            //antennae
+            noFill(); //grey
+            strokeWeight(7);
+            line(400,350,400,250); //pole
+            ellipse(400,215,75,75); //bulb
+            point(400,220) // center
         
             
             //mouth
             
             noFill()
             strokeWeight(10);
-            stroke('green');
+            stroke(0,220,0);
             curve(250,350,350,500,450,500,550,350);
 
             

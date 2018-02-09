@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+    <title>p5js Template</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.js"></script>
+    
+    <script>
+        var score = 0;
+        var hero; // main character or the person you controll
+        var heroX = 600 / 2 - 45;
+        var heroY = 600 - 50;
+        var villainX = 600 / 2;
+        var villainY = 30 - 0
+        var villain1 = [];
+        var barrierY = 600 - 90;
+        var vomit1 = [];
+
+        function setup() {
+            createCanvas(600, 600);
+            hero = new Hero();
+            villain = new Villain();
+
+        }
+
+        function draw() {
+           
+    
+            background(200,0,0);
+            noCursor();
+
+            hero.display(); 
+            hero.move(); 
+
+            if (frameCount % 240 == 0) { // every 4 seconds 7 villains try to pass you
+                villain1.push(new Villain()); // a new villain appears on the top of the canvas
+                villain1.push(new Villain());
+                villain1.push(new Villain());
+                villain1.push(new Villain());
+                villain1.push(new Villain());
+                villain1.push(new Villain());
+                villain1.push(new Villain());
+
+            }
+
+            for (var i = 0; i < vomit1.length; i++) {
+                vomit1[i].move();
+                vomit1[i].display();
+
+                for (var j = 0; j < villain1.length; j++) {
+                    if (vomit1[i].x + 5.7 + 30 > villain1[j].x && //this checks to see if the right edge of the vomit has entered the left edge of the villain
+                        vomit1[i].x + 5.7 < villain1[j].x + 40 && //this checks to see if the left edge of the vomit has entered the right edge of the villain
+                        vomit1[i].y + 3.7 + 20 > villain1[j].y && // check to see if the bottom of the vomit has entered the top of the villain &&
+                        vomit1[i].y + 3.7 < villain1[j].y + 40) { // heck to see if the top of the vomit has entered the bottom of the villain    )    {
+
+
+                        console.log("HIT");
+                        villain1.splice(j, 1); // deletes the villain that touched the function vomit
+                    
+                    }
+                }
+            }
+
+            if (keyIsDown(UP_ARROW)) { //everytime the up arrow is pressed, you shoot vomit
+                vomit1.push(new Vomit());
+            }
+            for (var i = 0; i < villain1.length; i++) {
+                villain1[i].move(); // makes it possible for the villain to come down from the top
+                villain1[i].display(); // displays a villain
+                if (villain1[i].y > 600) { // if the villain reaches the bottom of the canvas, then the game stops "noLoop()"
+                    noLoop();
+                    textStyle(BOLD);
+                    textSize(24);
+                    text("Game Over", height / 2 - 60, width / 2);
+                }
+
+            }
+
+
+
+        }
+
+        function Hero() {
+            this.x = heroX;
+            this.y = heroY;
+
+            this.move = function() {
+                if (keyIsDown(LEFT_ARROW)) { 
+                    this.x -= 5.5;
+
+                }
+                if (keyIsDown(RIGHT_ARROW)) { // if the right arrow is pressed the attacking block (the hero)moves to the right at a certain speed
+                    this.x += 5.5;
+                }
+
+            }
+            this.display = function() {
+                fill(90,200,100);
+                ellipse(this.x, this.y, 40, 40); //head
+               
+               strokeWeight(2);
+                stroke(0);
+                ellipse(this.x + 5.7, this.y + 3.7, 50, 50); //mouth
+               
+
+            }
+        }
+
+        function Villain() {
+            this.x = random(600 - 0);// makes the x of the villain random between 600 to 0
+            this.y = random(villainY); 
+
+            this.move = function() {// the villain moves down the by 2.5 pixels
+                this.y += 2.5; 
+
+            }
+
+            this.display = function() {
+                fill(0);// color blue
+                noStroke();
+                ellipse(this.x, this.y, 40, 40);
+
+            }
+        }
+
+        function Vomit() {
+            this.x = hero.x;
+            this.y = hero.y;
+            this.move = function() {// makes the vomit go up the canvas because the y value is decreasing by 6
+                this.y -= 6; 
+
+            }
+            this.display = function() {
+                fill(0,0,200);//color white
+                noStroke();
+                rect(this.x + 5.7, this.y + 3.7, 30, 20); //mouth
+            }
+        }
+    </script>
+</head>
+
+<body>
+<form><input TYPE="button" onClick="history.go(0)" value="Reset"></form>
+    <div id="code" class="container-fluid">
+        <script src="https://gist-it.appspot.com/github/kashifn1654/p5js/blob/master/finalproject.html?footer=0"></script>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        $(window).bind("load", function() {
+            $('#code').before($('#defaultCanvas0').remove());
+        });
+    </script>
+</body>
+
+
+
+</html>

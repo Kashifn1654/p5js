@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+    <title>p5js Template</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.js"></script>
+
+    <script>
+        var player;
+        var obstacles = [];
+        var stars = [];
+
+        function setup() {
+            initialize();
+        }
+
+        function draw() {
+            background(0);
+
+            for (var i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].show();
+                obstacles[i].update();
+
+                if (player.hits(obstacles[i])) {
+                    initialize();
+                    return false;
+                }
+
+                if (obstacles[i].outOfScreen()) {
+                    obstacles.splice(i, 1);
+                    player.score += 10;
+                }
+            }
+
+            for (var i = stars.length - 1; i >= 0; i--) {
+                stars[i].show();
+                stars[i].update();
+
+                if (stars[i].outOfScreen()) {
+                    stars.splice(i, 1);
+                }
+            }
+
+            player.update();
+            player.show();
+
+            if (frameCount % 80 == 0) {
+                obstacles.push(new Obstacle());
+            }
+
+            if (frameCount % 10 == 0) {
+                stars.push(new Star());
+            }
+        }
+
+        function keyPressed() {
+            if (keyCode == 87 && player.onBottom()) {
+                player.jump();
+            }
+        }
+
+        function initialize() {
+            obstacles = [];
+            stars = [];
+
+            var canvas = createCanvas(720, 400);
+            canvas.parent('canvas');
+
+            player = new Player();
+            obstacles.push(new Obstacle());
+            stars.push(new Star());
+        }
+    </script>
+</head>
+
+<body>
+<form><input TYPE="button" onClick="history.go(0)" value="Reset"></form>
+    <div id="code" class="container-fluid">
+        <script src="https://gist-it.appspot.com/github/kashifn1654/p5js/blob/master/dodge.html?footer=0"></script>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        $(window).bind("load", function() {
+            $('#code').before($('#defaultCanvas0').remove());
+        });
+    </script>
+</body>
+
+
+
+</html>

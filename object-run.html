@@ -4,121 +4,180 @@
 <head>
     <title>p5js Template</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.dom.js"></script>
 
     <script>
-        //initialise score variable
-        int score = 0 
-        int ballSize = 20;
-        boolean fire = false;
+      function Player() {  
+        this.size = 30;
+        this.y = height - this.size;
+        this.x = 48;
 
-        //Initialise gameOver variable
-        int gameOver = 0;
+        this.gravity = 0.98; // controlls how the balll drops
+        this.velocity = 0;
+        this.jump_height = 16;
+        this.score = 0;
 
-        //int startGame;
-        int getRandomX()
+        this.show = function() {
+          fill(255);
+          rect(this.x, this.y, this.size, this.size); // rectangle
 
-
-        // int score;
-        {
-            return int(random(600));
+          textSize(14);
+          text("SCORE: " + this.score, 20, 30);
         }
 
-        int[] ballx = { getRandomX(), getRandomX(), getRandomX(), getRandomX(), getRandomX() };
-        int[] bally = { 0, 0, 0, 0, 0 };
+        this.update = function() {
+          this.velocity += this.gravity;
+          this.y += this.velocity;
 
-        void setup() {
-
-            //Size 
-            size(900, 500);
-            smooth();
-
+          if((this.y + this.size) > height) {
+            this.y = height - this.size;
+            this.velocity = 0;
+          }
         }
 
-        void draw() {
-
-            //Game Style
-
-            background(0);
-            fill(255);
-            stroke(255);
-            triangle(mouseX - 8, 480, mouseX + 8, 480, mouseX, 565);
-            // display score
-            fill(255);
-            text(score, 20, 20);
-            if (fire) {
-                cannon(mouseX);
-                fire = false;
-            }
-
-            ballFalling();
-            gameFinish();
+        this.onBottom = function() {
+          return this.y == (height - this.size);
         }
 
-        //Play the game
-
-
-        void mousePressed() {
-            fire = true;
+        this.jump = function() {
+          this.velocity -= this.jump_height;
         }
 
-        void ballFalling() {
-            stroke(39, 154, 240);
-            fill(39, 154, 240);
+        this.hits = function(obstacle) {  // returns to the begining if you lose
+          if((obstacle.x >= this.x) && (obstacle.x <= (this.x + this.size)) &&
+             ((this.y + this.size) >= (height - obstacle.height))) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+      
+      function Obstacle() {  
+        this.x = width;
+        this.height = random(80) + 20;
+        this.width = 30;
+        this.speed = 6;
 
-            for (int i = 0; i < 5; i++) {
-                ellipse(ballx[i], bally[i]++, ballSize, ballSize);
-            }
+        this.show = function() {
+          fill(192);
+          rect(this.x, (height - this.height), this.width, this.height);
         }
 
-        void cannon(int shotX) {
-            boolean strike = false;
-            for (int i = 0; i < 5; i++) {
-                if ((shotX >= (ballx[i] - ballSize / 2)) && (shotX <= (ballx[i] + ballSize / 2))) {
-                    strike = true;
-                    line(mouseX, 565, mouseX, bally[i]);
-                    ellipse(ballx[i], bally[i],
-                        ballSize + 25, ballSize + 25);
-                    ballx[i] = getRandomX();
-                    bally[i] = 0;
-
-
-                    // update score
-                    score++;
-                }
-            }
-
-            if (strike == false) {
-                line(mouseX, 565, mouseX, 0);
-            }
-
+        this.update = function() {
+          this.x -= this.speed;
         }
 
-
-        //GameOver
-
-        void gameFinish() {
-            for (int i = 0; i < 5; i++) {
-                if (bally[i] == 530) {
-
-
-                    fill(color(255, 0, 0));
-                    fill(255, 0, 0);
-                    textAlign(CENTER);
-                    text("GAME OVER", width / 2, height / 2);
-                    text("Well done! Your score was : " + score, width / 2, height / 2 + 50);
-
-                    noLoop();
-
-
-                }
-            }
+        this.outOfScreen = function() {
+          return (this.x < -this.width ? true : false);
         }
+      }
+      
+      function Star() {  
+        this.x = width;
+        this.y = random(300);
+        this.speed = 2;
+
+        this.show = function() {
+          fill(255);
+          ellipse(this.x, this.y, 3, 3);
+        }
+
+        this.update = function() {
+          this.x -= this.speed;
+        }
+
+        this.outOfScreen = function() {
+          return (this.x < -this.width ? true : false);
+        }
+      }
+      
+      var player;  
+      var obstacles = [];  
+      var stars = [];
+
+      function setup() {          
+        initialize();
+      }
+
+      function draw() {  
+        background(0);
+
+        // Loop through the obstacles array
+        for(var i = obstacles.length - 1; i >= 0; i--) {
+          // Update the state of the obstacle
+          obstacles[i].show();
+          obstacles[i].update();
+
+          // If the player hits the obstacle, we reset the game
+          if(player.hits(obstacles[i])) {
+            initialize();
+            return false;
+          }
+
+          // If the obstacle goes out of the screen, we remove it from the obstacles array and
+          // increments the amount of points of the player
+          if(obstacles[i].outOfScreen()) {
+            obstacles.splice(i, 1);
+            player.score += 10;
+          }
+        }
+
+        // Loop through the stars array
+        for(var i = stars.length - 1; i >= 0; i--) {
+          // Update the state of the star
+          stars[i].show();
+          stars[i].update();
+
+          // If the star goes out of the screen, we remove it from the stars array
+          if(stars[i].outOfScreen()) {
+            stars.splice(i, 1);
+          }
+        }
+
+        // Update the state of the player
+        player.update();
+        player.show();
+
+        // Every 80 frames, we spawn a new obstacle
+        if(frameCount % 80 == 0) {
+          obstacles.push(new Obstacle());
+        }
+
+        // Every 10 frames, we spawn a new star
+        if(frameCount % 10 == 0) {
+          stars.push(new Star());
+        }
+      }
+
+      function keyPressed() {  
+        if(keyCode == 87 && player.onBottom()) {
+          player.jump();
+        }
+      }
+
+      function initialize() { 
+        // Create the canvas element
+        var canvasDiv = document.createElement('div');
+        canvasDiv.id = 'canvas';
+        document.getElementsByTagName('body')[0].appendChild(canvasDiv);
+      
+        obstacles = [];
+        stars = [];
+
+        var canvas = createCanvas(720, 400);
+        canvas.parent('canvas');
+
+        player = new Player();
+        obstacles.push(new Obstacle());
+        stars.push(new Star());
+      }
     </script>
 </head>
-
-<body>
+  <body>
+<form><input TYPE="button" onClick="history.go(0)" value="Reset"></form>
     <div id="code" class="container-fluid">
-        <script src="https://gist-it.appspot.com/github/kashifn1654/p5js/blob/master/object-run.html?footer=0"></script>
+        <script src="https://gist-it.appspot.com/github/USERNAME/p5js/blob/master/FILENAME.html?footer=0"></script>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
